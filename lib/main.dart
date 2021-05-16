@@ -27,47 +27,77 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String barcode = '';
+  ScanResult scanResult;
 
-  /// QRスキャン開始、結果取得
-  Future scan() async {
+  Future _scan() async {
     try {
-      String barcode = await BarcodeScanner.scan() as String;
-      setState(() => this.barcode = barcode);
+      var result = await BarcodeScanner.scan();
+      setState(() => scanResult = result);
     } on PlatformException catch (e) {
+      var result = ScanResult(
+        type: ResultType.Error,
+        format: BarcodeFormat.unknown,
+      );
       if (e.code == BarcodeScanner.cameraAccessDenied) {
         setState(() {
-          this.barcode = 'ユーザーがカメラの許可を与えていません！';
+          result.rawContent = 'カメラへのアクセスが許可されていません!';
         });
       } else {
-        setState(() => this.barcode = '不明なエラー: $e');
+        result.rawContent = 'エラー: $e';
       }
-    } on FormatException{
-      setState(() => this.barcode = '読み取りできませんでした');
-    } catch (e) {
-      setState(() => this.barcode = '読み取りできませんでした: $e');
+      setState(() {
+        scanResult = result;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            FlatButton(
-              color: Colors.blueAccent,
-              child: Text('QR読み取り', style: TextStyle(color: Colors.white),),
-              onPressed: scan,
-            ),
-            Text(barcode)
-          ],
+    var contentList = <Widget>[
+      if (scanResult != null)
+        Card(
+          child: Column(
+            children: <Widget>[
+              ListTile(
+                title: Text("Result Type"),
+                subtitle: Text(scanResult.type?.toString() ?? ""),
+              ),
+              ListTile(
+                title: Text("RawContent"),
+                subtitle: Text(scanResult.rawContent ?? ""),
+              ),
+              ListTile(
+                title: Text("Format"),
+                subtitle: Text(scanResult.format?.toString() ?? ""),
+              ),
+              ListTile(
+                title: Text("Format note"),
+                subtitle: Text(scanResult.formatNote ?? ""),
+              ),
+            ],
+          ),
         ),
+      ListTile(
+        title: Text("ボタンを押してカメラを起動してください"),
+        subtitle: Text("カメラをQRコードに向けてください"),
       ),
-    );
+    ];
+    return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          appBar: AppBar(
+            title: Text(widget.title),
+          ),
+          body: ListView(
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            children: contentList,
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: _scan,
+            tooltip: 'Scan',
+            child: Icon(Icons.camera),
+          ),
+        ));
   }
 }
