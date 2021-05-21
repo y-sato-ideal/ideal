@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/services.dart';
@@ -47,8 +48,17 @@ class _MyHomePageState extends State<MyHomePage> {
       }
       setState(() {
         scanResult = result;
+
+
       });
     }
+    if (scanResult.format?.toString() == "qr" ){
+      Firestore.instance.collection('qrcode').add({
+        "title": scanResult.rawContent
+      });
+    }
+
+
   }
 
   @override
@@ -78,10 +88,14 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ListTile(
+
         title: Text("ボタンを押してカメラを起動してください"),
         subtitle: Text("カメラをQRコードに向けてください"),
       ),
+
     ];
+
+
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
@@ -98,6 +112,13 @@ class _MyHomePageState extends State<MyHomePage> {
             tooltip: 'Scan',
             child: Icon(Icons.camera),
           ),
+
         ));
+
+
   }
+
+
+
+
 }
