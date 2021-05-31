@@ -48,11 +48,7 @@ class _AuthPageState extends State {
     });
   }
 
-  void logout() {
-    setState(() {
-      logined = false;
-    });
-  }
+
 
   Future signInWithGoogle() async {
     //サインイン画面が表示
@@ -85,17 +81,13 @@ class _AuthPageState extends State {
     );
   }
 
-  //サインアウト
-  void signOutGoogle() async {
-    await googleSignIn.signOut();
-    logout();
-    print("User Sign Out Google");
-  }
+
+
 
   @override
   Widget build(BuildContext context) {
-    Widget logoutText = Text("ログアウト中");
-    Widget loginText = Text("ログイン中");
+
+
 
     Widget loginButton = RaisedButton(
       child: Text("Sign in Google"),
@@ -103,11 +95,7 @@ class _AuthPageState extends State {
       textColor: Colors.white,
       onPressed: signInWithGoogle,
     );
-    Widget logoutButton = RaisedButton(
-        child: Text("Sign out"),
-        color: Color(0xFFDD4B39),
-        textColor: Colors.white,
-        onPressed: signOutGoogle);
+
 
     return Scaffold(
       appBar: AppBar(
@@ -118,7 +106,7 @@ class _AuthPageState extends State {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            logined ? logoutButton : loginButton,
+            loginButton,
           ],
         ),
       ),
